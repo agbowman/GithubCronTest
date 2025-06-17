@@ -1,4 +1,4 @@
-name: email-blank-workbook
+name: append-to-file-every-2min
 
 on:
   schedule:
@@ -6,25 +6,19 @@ on:
   workflow_dispatch:         # manual "Run workflow" button for instant test
 
 jobs:
-  send:
+  append:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install deps
-        run: pip install -r requirements.txt
-
-      - name: Run sender
-        env:
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
-          SMTP_FROM: ${{ secrets.SMTP_FROM }}
-          SMTP_TO:   ${{ secrets.SMTP_TO }}
-        run: python send_excel.py 
+      - name: Append to file and commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo "A new word was added at $(date)" >> log.txt
+          git add log.txt
+          # Commit only if there are changes
+          git diff --quiet && git diff --staged --quiet || git commit -m "docs: append to log.txt"
+          git push 
