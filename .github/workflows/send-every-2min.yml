@@ -1,6 +1,10 @@
 name: append-to-file-every-2min
 
 on:
+  # This makes the workflow run on pushes to the main branch.
+  push:
+    branches:
+      - main
   schedule:
     - cron:  "*/2 * * * *"   # every 2 minutes (UTC)
   workflow_dispatch:         # manual "Run workflow" button for instant test
